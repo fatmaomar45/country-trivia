@@ -63,3 +63,10 @@ lib/
 ## Docs
 
 - `docs/master_plan.md` — full architecture, ticket breakdown, execution order
+- `docs/opencode-setup.md` — OpenCode PR review setup and API key instructions
+
+## PR Review
+
+- PRs are automatically reviewed by OpenCode's **Big Pickle** model via GitHub Actions
+- Review comments are posted automatically on each PR
+- Setup: add `OPENCODE_API_KEY` to repo secrets (see `docs/opencode-setup.md`)
