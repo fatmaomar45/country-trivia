@@ -743,3 +743,26 @@ Wave 9 (Serial):    TICKET-022  (depends on 017 + 018-021)
 **Critical path:** TICKET-001 → TICKET-007 → TICKET-009 → TICKET-010 → TICKET-016 → TICKET-017 → TICKET-022 (7 tickets)
 
 **Maximum parallelism:** 5 tickets simultaneously (Wave 1 and Wave 5)
+
+---
+
+## 22. Branching Strategy
+
+| Rule | Detail |
+|------|--------|
+| **Default branch** | `development` |
+| **Feature PRs** | All feature PRs must target `development` |
+| **Feature branches** | Named `feature/TICKET-XXX-short-description` (e.g., `feature/TICKET-001-add-dependencies`) |
+| **Merge strategy** | Squash merge into `development` |
+| **Release** | `development` → `main` via PR when a stable milestone is reached |
+| **Protection** | `development` requires PR review + successful emulator run before merge |
+
+### PR Checklist (every feature PR)
+
+- [ ] Branch created from latest `development`
+- [ ] Ticket reference in PR title (e.g., `[TICKET-011] Add FlagImage widget`)
+- [ ] `flutter analyze` passes with no errors
+- [ ] `flutter test` passes (unit + widget tests for the ticket)
+- [ ] `flutter run` verified on emulator without errors
+- [ ] PR targets `development` branch
+- [ ] Description summarizes changes and links to the ticket
