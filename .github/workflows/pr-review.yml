@@ -17,18 +17,16 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up OpenCode
-        uses: opencode-ai/setup@v1
-        with:
-          version: latest
-
       - name: Review PR with Big Pickle
+        uses: anomalyco/opencode/github@latest
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
-        run: |
-          opencode run \
-            --model "opencode/big-pickle" \
-            --prompt "Review this pull request. Focus on:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          model: opencode/big-pickle
+          use_github_token: true
+          prompt: |
+            Review this pull request. Focus on:
             - Code quality and adherence to the MVVM + Provider architecture
             - Proper error handling and edge cases
             - Test coverage and correctness
@@ -40,29 +38,4 @@ jobs:
             2. Key findings (if any)
             3. Suggestions for improvement (if any)
 
-            Keep the review focused and actionable." \
-            --format text
-
-      - name: Post review comment
-        env:
-          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          REVIEW=$(opencode run \
-            --model "opencode/big-pickle" \
-            --prompt "Review this pull request. Focus on:
-            - Code quality and adherence to the MVVM + Provider architecture
-            - Proper error handling and edge cases
-            - Test coverage and correctness
-            - Consistency with existing code patterns in lib/
-            - Any security or performance concerns
-
-            Provide a concise summary with:
-            1. Overall assessment (approve / request changes / comment)
-            2. Key findings (if any)
-            3. Suggestions for improvement (if any)
-
-            Keep the review focused and actionable." \
-            --format text)
-
-          gh pr comment ${{ github.event.pull_request.number }} --body "$REVIEW"
+            Keep the review focused and actionable.
