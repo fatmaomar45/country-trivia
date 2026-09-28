@@ -15,38 +15,89 @@ class TriviaScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const ScoreBoard(score: 0, solvedCount: 0, totalCount: 0),
-      body: SafeArea(
-        child: Consumer<TriviaViewModel>(
-          builder: (context, viewModel, child) {
-            return Padding(
+    return Consumer<TriviaViewModel>(
+      builder: (context, viewModel, child) {
+        return Scaffold(
+          appBar: ScoreBoard(
+            score: viewModel.score,
+            solvedCount: viewModel.solvedFlags.length,
+            totalCount: 195, // ~195 countries in the world
+          ),
+          body: SafeArea(
+            child: Padding(
               padding: const EdgeInsets.all(16),
               child: _buildContent(context, viewModel),
-            );
-          },
-        ),
-      ),
+            ),
+          ),
+        );
+      },
     );
   }
 
   Widget _buildContent(BuildContext context, TriviaViewModel viewModel) {
     switch (viewModel.gameState) {
       case GameState.loading:
-        return const Center(child: CircularProgressIndicator());
-
+        return _buildLoadingState();
       case GameState.playing:
         return _buildPlayingState(context, viewModel);
-
       case GameState.revealed:
         return _buildRevealedState(context, viewModel);
     }
   }
 
+  Widget _buildLoadingState() {
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CircularProgressIndicator(),
+          SizedBox(height: 16),
+          Text('Loading...'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAllSolvedState(BuildContext context, TriviaViewModel viewModel) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.emoji_events, size: 64, color: Colors.amber),
+          const SizedBox(height: 16),
+          Text(
+            'Congratulations!',
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'You\'ve solved all flags!',
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Final Score: ${viewModel.score}',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton.icon(
+            onPressed: () {
+              // Reset logic would clear solved flags and restart
+            },
+            icon: const Icon(Icons.refresh),
+            label: const Text('Play Again'),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildPlayingState(BuildContext context, TriviaViewModel viewModel) {
     final question = viewModel.currentQuestion;
     if (question == null) {
-      return const Center(child: CircularProgressIndicator());
+      return _buildLoadingState();
     }
 
     return Column(
@@ -85,7 +136,12 @@ class TriviaScreen extends StatelessWidget {
   Widget _buildRevealedState(BuildContext context, TriviaViewModel viewModel) {
     final question = viewModel.currentQuestion;
     if (question == null) {
-      return const Center(child: CircularProgressIndicator());
+      return _buildLoadingState();
+    }
+
+    // Check if all countries are solved
+    if (viewModel.feedbackMessage == 'No more countries available!') {
+      return _buildAllSolvedState(context, viewModel);
     }
 
     return Column(
